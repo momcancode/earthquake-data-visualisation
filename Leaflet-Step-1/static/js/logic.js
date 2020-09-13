@@ -25,10 +25,11 @@ d3.json(queryUrl).then(function(data) {
 
 	for (var i = 0; i < features.length; i++) {
 		
-		//Define variable magnitudes of the earthquakes
+		//Define variable magnitudes and coordinates of the earthquakes
 		var magnitudes = features[i].properties.mag;
+		var coordinates = features[i].geometry.coordinates;
 
-		// Conditionals for magnitudes of the earthquakes
+		// Color Conditionals for magnitudes of the earthquakes
 		if (magnitudes >= 5) {
 			circleColor = "rgb(240, 107, 107)";
 			}
@@ -47,5 +48,16 @@ d3.json(queryUrl).then(function(data) {
 			else {
 			circleColor = "rgb(183, 243, 77)";
 			}
+
+		// Add circles to map
+		L.circle(
+			[coordinates[1], coordinates[0]], {
+				fillOpacity: 0.95,
+				fillColor: circleColor,
+				color: "black",
+				weight: 0.5,
+				radius: magnitudes * 15000
+			}
+		).addTo(myMap)
 }
 });
