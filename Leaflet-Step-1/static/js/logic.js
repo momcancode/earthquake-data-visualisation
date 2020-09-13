@@ -52,12 +52,14 @@ d3.json(queryUrl).then(function(data) {
 		// Add circles to map
 		L.circle(
 			[coordinates[1], coordinates[0]], {
-				fillOpacity: 0.95,
+				fillOpacity: 0.75,
 				fillColor: circleColor,
 				color: "black",
 				weight: 0.5,
 				radius: magnitudes * 15000
 			}
 		).addTo(myMap)
+		.bindPopup("<h3>" + features[i].properties.place +
+      "</h3><hr><p>" + new Date(features[i].properties.time) + "</p>");
 }
 });
