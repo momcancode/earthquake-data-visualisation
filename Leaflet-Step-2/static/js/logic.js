@@ -61,7 +61,7 @@ d3.json(earthquakeUrl).then(function(data) {
 		earthquakeMarkers.push(
 			L.circle(
 				[coordinates[1], coordinates[0]], {
-					fillOpacity: 0.75,
+					fillOpacity: 0.9,
 					fillColor: getColor(magnitudes),
 					color: getColor(magnitudes),
 					stroke: false,
@@ -92,21 +92,49 @@ d3.json(earthquakeUrl).then(function(data) {
 	legend.addTo(myMap);
 });
 
+// Grab the tectonic data with d3
+d3.json(tectonicUrl).then(function(data) {
+
+	// Grab the features data
+	var features = data.features;
+
+	for (var i = 0; i < features.length; i++) {
+
+		// Because the coordinates in geojson are ordered reversely against what 
+		// should be passed into Leaflet to be rendered correctly, we'll create an array to
+		// reorder each pair of coordinates
+		var coordinates = features[i].geometry.coordinates;
+
+		var orderedCoordinates = [];
+
+		orderedCoordinates.push(
+			coordinates.map(coordinate => [coordinate[1], coordinate[0]])
+		);
+
+		// Create tectonic lines
+		tectonicLines.push(
+			L.polyline(orderedCoordinates, {
+				color: "rgb(255, 165, 0)",
+			}).addTo(myMap)
+		);
+	};
+});
+
 // Create two separate layer groups: one for earthquakes and one for tectonic boundaries
 var earthquake = L.layerGroup(earthquakeMarkers);
-// var cities = L.layerGroup(cityMarkers);
+var tectonic = L.layerGroup(tectonicLines);
 
 // Create an overlay object
 var overlayMaps = {
-  "Earthquakes": earthquake,
-  // "City Population": cities
+	"Fault Lines": tectonic,
+  "Earthquakes": earthquake
 };
 
 // Define a map object
 var myMap = L.map("map", {
 	center: [23.6978, 120.9605],
 	zoom: 4,
-  layers: [satellite, earthquake] //this is in order of layering
+  layers: [satellite, tectonic, earthquake] //this is in order of layering
 });
 
 // Pass our map layers into our layer control
