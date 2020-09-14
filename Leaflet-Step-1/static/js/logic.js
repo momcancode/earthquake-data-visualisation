@@ -7,9 +7,7 @@ var myMap = L.map("map", {
 // Adding light mode tile layer to the map
 L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
 	attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
-	tileSize: 512,
 	maxZoom: 18,
-	zoomOffset: -1,
 	id: "light-v10",
 	accessToken: API_KEY
 }).addTo(myMap);
@@ -50,7 +48,8 @@ d3.json(queryUrl).then(function(data) {
 			}
 		).addTo(myMap)
 		.bindPopup("<h3>" + features[i].properties.place +
-      "</h3><hr><p>" + new Date(features[i].properties.time) + "</p>");
+			"</h3><hr><p>" + new Date(features[i].properties.time) + 
+			'<br>' + '[' + coordinates[1] + ', ' + coordinates[0] + ']' + "</p>");
 	}	
 
 	// Legend for the chart
