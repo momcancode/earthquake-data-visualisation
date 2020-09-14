@@ -150,12 +150,3 @@ legend.onAdd = function () {
 	return div;
 };
 legend.addTo(myMap);
-
-// // Create two separate layer groups: one for earthquakes and one for tectonic boundaries
-// var earthquake = L.layerGroup(earthquakeMarkers);
-// var tectonic = L.layerGroup(tectonicLines);
-
-// Define arrays to hold earthquake circle markers and tectonic plates boundaries
-// var earthquakeMarkers = [];
-// var tectonicLines = [];
-

@@ -45,12 +45,10 @@ d3.json(queryUrl).then(function(data) {
 				color: "black",
 				weight: 0.5,
 				radius: magnitudes * 15000
-			}
-		).addTo(myMap)
-		.bindPopup("<h3>" + features[i].properties.place +
-			"</h3><hr><p>" + new Date(features[i].properties.time) + 
-			'<br>' + '[' + coordinates[1] + ', ' + coordinates[0] + ']' + "</p>");
-	}	
+			}).bindPopup("<h3>" + features[i].properties.place +
+				"</h3><hr><p>" + new Date(features[i].properties.time) + 
+				'<br>' + '[' + coordinates[1] + ', ' + coordinates[0] + ']' + "</p>").addTo(myMap);
+	};	
 
 	// Legend for the chart
 	var legend = L.control({position: 'bottomright'});
