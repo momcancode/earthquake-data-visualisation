@@ -59,8 +59,37 @@ L.control.layers(baseMaps, overlayMaps, {
 }).addTo(myMap);
 
 // Store our API endpoints
-var earthquakeUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
 var tectonicUrl = "https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json";
+var earthquakeUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
+
+
+// Perform a call to the tectonic endpoint
+d3.json(tectonicUrl).then(function(infoTec) {
+
+	// Grab the features tectonic data
+	var tecFeatures = infoTec.features;
+
+	for (var i = 0; i < tecFeatures.length; i++) {
+
+		// Because the coordinates in geojson are ordered reversely against what 
+		// should be passed into Leaflet to be rendered correctly, we'll create an array to
+		// reorder each pair of coordinates
+		var coordinates = tecFeatures[i].geometry.coordinates;
+
+		var orderedCoordinates = [];
+
+		orderedCoordinates.push(
+			coordinates.map(coordinate => [coordinate[1], coordinate[0]])
+		);
+
+		// Create tectonic lines
+		var lines = L.polyline(orderedCoordinates, {color: "rgb(255, 165, 0)"});
+		
+		// Add the new marker to the appropriate layer
+		lines.addTo(layers.TECTONIC_LINE);
+	};
+});
+
 
 // Create function to color cicles according to earthquake magnitudes
 function getColor(d) {
@@ -75,39 +104,8 @@ function getColor(d) {
 // Perform an API call to the earthquake data endpoint
 d3.json(earthquakeUrl).then(function(infoEarth) {
 	
-	// When the first API call is complete, perform another call to the tectonic endpoint
-	d3.json(tectonicUrl).then(function(infoTec) {
-
-		// Grab the features earthquake and tectonic data
-		var tecFeatures = infoTec.features;
-		var earthFeatures = infoEarth.features;
-
-		// Create an object to keep the earthquake and tectonic layers
-		var layerGroups = {
-			TECTONIC_LINE: [],
-			EARTHQUAKES: []
-		}
-
-		for (var i = 0; i < tecFeatures.length; i++) {
-
-			// Because the coordinates in geojson are ordered reversely against what 
-			// should be passed into Leaflet to be rendered correctly, we'll create an array to
-			// reorder each pair of coordinates
-			var coordinates = tecFeatures[i].geometry.coordinates;
-
-			var orderedCoordinates = [];
-
-			orderedCoordinates.push(
-				coordinates.map(coordinate => [coordinate[1], coordinate[0]])
-			);
-
-			// Create tectonic lines
-			layerGroups.TECTONIC_LINE.push(
-				L.polyline(orderedCoordinates, {
-					color: "rgb(255, 165, 0)",
-				}).addTo(myMap)
-			);
-		};
+	// Grab the features earthquake data
+	var earthFeatures = infoEarth.features;
 
 	for (var i = 0; i < earthFeatures.length; i++) {
 		
@@ -116,21 +114,23 @@ d3.json(earthquakeUrl).then(function(infoEarth) {
 		var coordinates = earthFeatures[i].geometry.coordinates;
 
 		// Add circles and bind PopUps to map
-		layerGroups.EARTHQUAKES.push(
-			L.circle(
-				[coordinates[1], coordinates[0]], {
-					fillOpacity: 0.9,
-					fillColor: getColor(magnitudes),
-					color: getColor(magnitudes),
-					stroke: false,
-					radius: magnitudes * 17000
-				}
-			).addTo(myMap)
-			.bindPopup("<h3>" + earthFeatures[i].properties.place +
-				"</h3><hr><p>" + new Date(earthFeatures[i].properties.time) + 
-				'<br>' + '[' + coordinates[1] + ', ' + coordinates[0] + ']' + "</p>"));
+		var circleMarkers = L.circle(
+													[coordinates[1], coordinates[0]], {
+														fillOpacity: 0.9,
+														fillColor: getColor(magnitudes),
+														color: getColor(magnitudes),
+														stroke: false,
+														radius: magnitudes * 17000
+													});
+
+		// Add the new marker to the appropriate layer
+		circleMarkers.addTo(layers.EARTHQUAKES);
+
+		// Bind a popup to the marker that will  display on click. This will be rendered as HTML
+		circleMarkers.bindPopup("<h3>" + earthFeatures[i].properties.place +
+										"</h3><hr><p>" + new Date(earthFeatures[i].properties.time) + 
+										'<br>' + '[' + coordinates[1] + ', ' + coordinates[0] + ']' + "</p>");
 	};
-	});	
 });
 
 // Legend for the chart
@@ -139,7 +139,6 @@ legend.onAdd = function () {
 
 	var div = L.DomUtil.create('div', 'info legend'),
 		grades = [0, 1, 2, 3, 4, 5];
-		// labels = [];
 
 	// loop through our magnitude intervals and generate a label with a colored square for each interval
 	for (var i = 0; i < grades.length; i++) {
