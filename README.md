@@ -30,8 +30,7 @@ Create a map using Leaflet that plots all of the earthquakes from the earthquake
 
 * Add layer controls to the map.
 
-- - -
+---
+Contact:
 
-### Copyright of the challenge
-
-Trilogy Education Services © 2019. All Rights Reserved.
+Email: thao.ph.ha@gmail.com
